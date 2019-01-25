@@ -47,6 +47,8 @@ menuentry "Debian Live Stretch" {
 
 ### Create a minimalist custom Debian live-CD
 
+Source: https://willhaley.com/blog/custom-debian-live-environment/
+
 On some already-installed systems, you cannot put the 2 GB Debian live-cd. That's why you will need a smaller, and minimalist one.
 
 Steps to create a minimalist CD: (don't execute these scripts as root user, they already contains sudo commands when it is needed):
