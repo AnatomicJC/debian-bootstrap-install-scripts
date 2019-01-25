@@ -1,0 +1,15 @@
+#!/bin/sh
+exec tail -n +3 $0
+# This file provides an easy way to add custom menu entries.  Simply type the
+# menu entries you want to add after this comment.  Be careful not to change
+# the 'exec tail' line above.
+menuentry "Debian Live Stretch" {
+    insmod loopback
+    insmod iso9660
+    set isopath="/iso"
+    set isoname="debian-custom.iso"
+    set isofile="${isopath}/${isoname}"
+    loopback loop $isofile
+    linux ${isopath}/vmlinuz boot=live findiso=${isofile} config hooks=filesystem username=live noeject toram=filesystem.squashfs
+    initrd ${isopath}/initrd
+}
