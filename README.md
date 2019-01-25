@@ -79,6 +79,11 @@ There is some variables to be defined on top of both scripts:
 * PUBLIC_IP: it is the public IP of the main interface
 * IFACE_NAME: systemd-named of your network card, eg. ens18, enps0f1, etc.
 
+Once it is done, you can exec script:
+
+    cd zfs-install-scripts
+    bash zfs_script.sh
+
 **Caveats:**
 
 * Only one disk is supported for now. For RAID configurations, you will have to customize the script. Read the ZFS wiki pages
