@@ -1,11 +1,18 @@
 # Variables
-DISK=/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_drive-scsi0
+DISKS=( 
+  /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_drive-scsi0
+  /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_drive-scsi1
+  )
 HOSTNAME=server
 DOMAIN=local
 FQDN=${HOSTNAME}.${DOMAIN}
 PUBLIC_IP=127.0.1.1
 # IFACE_NAME will be dhcp, adapt script for your needs
 IFACE_NAME=eth0
+ZFS_SYNC=disabled
+ZFS_DEDUP=off
+ZFS_RAID=mirror
+ZFS_CRYPTED_DISKS="/dev/mapper/crypt_disk_0 /dev/mapper/crypt_disk_1"
 
 # Script
 echo "deb http://ftp.debian.org/debian stretch main contrib" > /etc/apt/sources.list
@@ -15,28 +22,41 @@ apt install --yes zfs-dkms
 modprobe zfs
 
 apt install --yes mdadm
-mdadm --zero-superblock --force ${DISK}
 
-sgdisk --zap-all ${DISK}
+echo "Drop and recreate partitions"
+for DISK in "${DISKS[@]}"
+do
+  mdadm --zero-superblock --force ${DISK}
 
-# Legacy BIOS
-sgdisk -a1 -n2:34:2047  -t2:EF02 ${DISK}
-# UEFI
-sgdisk     -n3:1M:+512M -t3:EF00 ${DISK}
-# Boot partition
-sgdisk     -n4:0:+512M  -t4:8300 ${DISK}
-# Fill free disk space
-sgdisk     -n1:0:0      -t1:8300 ${DISK}
+  sgdisk --zap-all ${DISK}
 
+  # Legacy BIOS
+  sgdisk -a1 -n2:34:2047  -t2:EF02 ${DISK}
+  # UEFI
+  sgdisk     -n3:1M:+512M -t3:EF00 ${DISK}
+  # Boot partition
+  sgdisk     -n4:0:+512M  -t4:8300 ${DISK}
+  # Fill free disk space
+  sgdisk     -n1:0:0      -t1:8300 ${DISK}
+done
+
+echo "Cryptsetup"
+COUNT=0
 # cryptsetup
-cryptsetup luksFormat ${DISK}-part1
-cryptsetup luksOpen ${DISK}-part1 crypt_disk
+for DISK in "${DISKS[@]}"
+do
+  echo "cryptsetup luksFormat ${DISK}-part1"
+  cryptsetup luksFormat ${DISK}-part1
+  echo "cryptsetup luksOpen ${DISK}-part1 crypt_disk_${COUNT}"
+  cryptsetup luksOpen ${DISK}-part1 crypt_disk_${COUNT}
+  ((COUNT++))
+done
 
 zpool create -o ashift=12 \
-      -O sync=disabled -O dedup=on \
+      -O sync=${ZFS_SYNC} -O dedup=${ZFS_DEDUP} \
       -O atime=off -O canmount=off -O compression=lz4 -O normalization=formD \
       -O xattr=sa -O mountpoint=/ -R /mnt \
-      rpool /dev/mapper/crypt_disk
+      rpool ${ZFS_RAID} ${ZFS_CRYPTED_DISKS}
 
 zfs create -o canmount=off -o mountpoint=none rpool/ROOT
 zfs create -o canmount=noauto -o mountpoint=/ rpool/ROOT/debian
@@ -56,9 +76,19 @@ zfs create -o com.sun:auto-snapshot=false \
              -o setuid=off                              rpool/tmp
 chmod 1777 /mnt/tmp
 
-mke2fs -t ext2 ${DISK}-part4
-mkdir /mnt/boot
-mount ${DISK}-part4 /mnt/boot
+COUNT=0
+for DISK in "${DISKS[@]}"
+do
+  APPEND=""
+  if [ ${COUNT} -gt 0 ]
+  then
+    APPEND=${COUNT}
+  fi
+  mke2fs -t ext2 ${DISK}-part4
+  mkdir /mnt/boot${APPEND}
+  mount ${DISK}-part4 /mnt/boot${APPEND}
+  ((COUNT++))
+done
 
 chmod 1777 /mnt/var/tmp
 debootstrap stretch /mnt
@@ -87,27 +117,8 @@ auto lo
 iface lo inet loopback
 
 # The primary network interface
-auto eth0
-iface eth0 inet static
-    address 173.212.242.218
-    netmask 255.255.255.0
-    gateway 173.212.242.1
-    dns-search invalid
-    dns-nameservers 213.136.95.11 213.136.95.10
-
-    # add additional IP addresses this way
-    # up ip address add xxx.xxx.xxx.xxx/XX dev eth0
-
-iface eth0 inet6 static
-    address 2a02:c207:2023:7453:0000:0000:0000:0001
-    netmask 64
-    gateway fe80::1
-    accept_ra 0
-    autoconf 0
-    privext 0
-
-# Set route to network
-up ip route add 173.212.242.0/24 via 173.212.242.1
+auto ${IFACE_NAME}
+iface ${IFACE_NAME} inet dhcp
 EOF
 
 cat >> /mnt/etc/apt/sources.list << EOF
