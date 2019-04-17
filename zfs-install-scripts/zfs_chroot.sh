@@ -1,6 +1,7 @@
+#!/bin/bash
 DISKS=( 
-  /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_drive-scsi0
-  /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_drive-scsi1
+  /dev/disk/by-id/ata-VBOX_HARDDISK_VB1587128e-72f375b7
+  /dev/disk/by-id/ata-VBOX_HARDDISK_VBaacf6245-82bc0762
   )
 
 ln -s /proc/self/mounts /etc/mtab
@@ -30,7 +31,7 @@ do
         ${DISK}-part4) \
         /boot${APPEND} ext2 noatime 0 2 >> /etc/fstab
   
-  echo crypt_disk UUID=$(blkid -s UUID -o value \
+  echo crypt_disk_${COUNT} UUID=$(blkid -s UUID -o value \
         ${DISK}-part1) none \
         luks,discard,initramfs > /etc/crypttab
 done
@@ -77,3 +78,5 @@ EOF
 
 update-initramfs -u -k all
 update-grub
+echo "Debug before quitting chroot ?"
+bash

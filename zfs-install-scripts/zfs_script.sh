@@ -1,14 +1,15 @@
+#!/bin/bash
 # Variables
 DISKS=( 
-  /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_drive-scsi0
-  /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_drive-scsi1
+  /dev/disk/by-id/ata-VBOX_HARDDISK_VB1587128e-72f375b7
+  /dev/disk/by-id/ata-VBOX_HARDDISK_VBaacf6245-82bc0762
   )
 HOSTNAME=server
 DOMAIN=local
 FQDN=${HOSTNAME}.${DOMAIN}
 PUBLIC_IP=127.0.1.1
 # IFACE_NAME will be dhcp, adapt script for your needs
-IFACE_NAME=eth0
+IFACE_NAME=enp0s3
 ZFS_SYNC=disabled
 ZFS_DEDUP=off
 ZFS_RAID=mirror
@@ -136,5 +137,7 @@ cp zfs_chroot.sh /mnt/
 chmod +x /mnt/zfs_chroot.sh
 chroot /mnt ./zfs_chroot.sh
 
+echo "Debug before umount ?"
+bash
 mount | grep -v zfs | tac | awk '/\/mnt/ {print $3}' | xargs -i{} umount -lf {}
 zpool export rpool
