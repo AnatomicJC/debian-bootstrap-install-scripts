@@ -33,7 +33,8 @@ do
   
   echo crypt_disk_${COUNT} UUID=$(blkid -s UUID -o value \
         ${DISK}-part1) none \
-        luks,discard,initramfs > /etc/crypttab
+        luks,discard,initramfs >> /etc/crypttab
+  ((COUNT++))
 done
 
 sed -i 's/\(.*\)CRYPTSETUP=\(.*\)/CRYPTSETUP=y/g' /etc/cryptsetup-initramfs/conf-hook
@@ -56,6 +57,7 @@ then
     echo PARTUUID=$(blkid -s PARTUUID -o value \
         ${DISK}-part3) \
         /boot/efi${APPEND} vfat noatime,nofail,x-systemd.device-timeout=1 0 1 >> /etc/fstab
+    ((COUNT++))
   done
   mount /boot/efi
   apt install --yes grub-efi-amd64
