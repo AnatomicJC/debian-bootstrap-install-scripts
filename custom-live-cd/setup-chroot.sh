@@ -41,6 +41,7 @@ EOF
 
 rm -rf /var/cache
 rm -rf /usr/share/{doc,locale,man}
+rm -rf /var/lib/{apt,dpkg}
 
 echo "== Debug =="
 bash
