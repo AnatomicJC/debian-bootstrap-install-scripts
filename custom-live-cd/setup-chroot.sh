@@ -39,5 +39,8 @@ cat >> /root/.ssh/authorized_keys << EOF
 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILKQ/T8HQ2xtIBFc6Q8v/PO7XPZc3T/w7RkATeLqD63R jc@bane
 EOF
 
+rm -rf /var/cache
+rm -rf /usr/share/{doc,locale,man}
+
 echo "== Debug =="
 bash
