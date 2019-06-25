@@ -39,7 +39,7 @@ done
 
 sed -i 's/\(.*\)CRYPTSETUP=\(.*\)/CRYPTSETUP=y/g' /etc/cryptsetup-initramfs/conf-hook
 
-apt install --yes grub-pc
+apt install --yes grub-pc grub2
 
 if [ -d /sys/firmware/efi ]
 then
