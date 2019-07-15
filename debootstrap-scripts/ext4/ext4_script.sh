@@ -75,7 +75,6 @@ echo ${HOSTNAME} > /mnt/etc/hostname
 
 cat >> /mnt/etc/hosts << EOF
 127.0.1.1       ${HOSTNAME}
-or if the system has a real name in DNS:
 ${PUBLIC_IP}       ${FQDN} ${HOSTNAME}
 
 # The following lines are desirable for IPv6 capable hosts
