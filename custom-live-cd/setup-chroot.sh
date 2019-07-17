@@ -43,5 +43,7 @@ rm -rf /var/cache
 rm -rf /usr/share/{doc,locale,man}
 rm -rf /var/lib/{apt,dpkg}
 
+mkdir -p /var/lib/dpkg/{info,alternatives,updates}
+touch /var/lib/dpkg/status
 echo "== Debug =="
 bash
