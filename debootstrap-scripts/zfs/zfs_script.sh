@@ -20,8 +20,15 @@ ZFS_CRYPTED_DISKS="/dev/mapper/crypt_disk_0 /dev/mapper/crypt_disk_1"
 echo "deb http://ftp.debian.org/debian ${DEBIAN_RELEASE} main contrib" > /etc/apt/sources.list
 apt update
 apt install --yes debootstrap gdisk dpkg-dev linux-headers-$(uname -r) cryptsetup vim
+
+# After zfs-dkms install, an installation error
+# can occur, due to postinst scripts :-(
 apt install --yes zfs-dkms
+# Installation can fail because zfs module is not loaded yet
+# So load it
 modprobe zfs
+# Then be sure packages are correctly installed
+apt-get -f install
 
 apt install --yes mdadm
 
@@ -42,6 +49,11 @@ do
   sgdisk     -n1:0:0      -t1:8300 ${DISK}
 done
 
+# Sometimes, disks can not be ready for cryptsetup step
+# So, Add a 2 seconds sleep...
+sleep 2
+
+# Script
 echo "Cryptsetup"
 COUNT=0
 # cryptsetup
