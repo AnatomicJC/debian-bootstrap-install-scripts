@@ -4,6 +4,7 @@ DISKS=(
   /dev/disk/by-id/ata-VBOX_HARDDISK_VB1587128e-72f375b7
   /dev/disk/by-id/ata-VBOX_HARDDISK_VBaacf6245-82bc0762
   )
+DEBIAN_RELEASE=buster
 HOSTNAME=server
 DOMAIN=local
 FQDN=${HOSTNAME}.${DOMAIN}
@@ -16,7 +17,7 @@ ZFS_RAID=mirror
 ZFS_CRYPTED_DISKS="/dev/mapper/crypt_disk_0 /dev/mapper/crypt_disk_1"
 
 # Script
-echo "deb http://ftp.debian.org/debian stretch main contrib" > /etc/apt/sources.list
+echo "deb http://ftp.debian.org/debian ${DEBIAN_RELEASE} main contrib" > /etc/apt/sources.list
 apt update
 apt install --yes debootstrap gdisk dpkg-dev linux-headers-$(uname -r) cryptsetup vim
 apt install --yes zfs-dkms
@@ -92,7 +93,7 @@ do
 done
 
 chmod 1777 /mnt/var/tmp
-debootstrap stretch /mnt
+debootstrap ${DEBIAN_RELEASE} /mnt
 zfs set devices=off rpool
 
 echo ${HOSTNAME} > /mnt/etc/hostname
@@ -122,10 +123,10 @@ iface ${IFACE_NAME} inet dhcp
 EOF
 
 cat >> /mnt/etc/apt/sources.list << EOF
-deb http://deb.debian.org/debian stretch-backports main
-deb http://deb.debian.org/debian stretch main contrib non-free
-deb http://deb.debian.org/debian stretch-updates main contrib non-free
-deb http://deb.debian.org/debian-security stretch/updates main contrib non-free
+deb http://deb.debian.org/debian ${DEBIAN_RELEASE}-backports main
+deb http://deb.debian.org/debian ${DEBIAN_RELEASE} main contrib non-free
+deb http://deb.debian.org/debian ${DEBIAN_RELEASE}-updates main contrib non-free
+deb http://deb.debian.org/debian-security ${DEBIAN_RELEASE}/updates main contrib non-free
 EOF
 
 mount --rbind /dev  /mnt/dev
