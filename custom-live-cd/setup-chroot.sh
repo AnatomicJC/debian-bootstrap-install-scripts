@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 echo "debian-live" > /etc/hostname
 apt-get install --yes --no-install-recommends linux-image-amd64 live-boot systemd-sysv ssh iproute2 iputils-ping isc-dhcp-client
 

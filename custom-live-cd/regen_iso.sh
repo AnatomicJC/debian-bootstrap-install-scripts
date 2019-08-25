@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 mkdir -p $HOME/LIVE_BOOT/{scratch,image/live}
 

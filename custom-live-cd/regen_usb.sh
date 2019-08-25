@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 export disk=/dev/sdz
 
 sudo mkdir -p /mnt/{usb,efi}
