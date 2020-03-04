@@ -1,12 +1,13 @@
 #!/bin/bash
 
-. ext4.vars
+FS=${1:-xfs}
+
+. ${FS}.class
 
 echo "deb http://ftp.debian.org/debian ${DEBIAN_RELEASE} main contrib" > /etc/apt/sources.list
 apt update
-apt install --yes debootstrap gdisk cryptsetup vim
 
-apt install --yes mdadm
+_func_setup_install_packages
 
 echo "Drop and recreate partitions"
 for DISK in "${DISKS[@]}"
@@ -25,6 +26,10 @@ do
   sgdisk     -n1:0:0      -t1:8300 ${DISK}
 done
 
+# Sometimes, disks can not be ready for cryptsetup step
+# So, Add a 2 seconds sleep...
+sleep 2
+
 echo "Cryptsetup"
 COUNT=0
 # cryptsetup
@@ -37,9 +42,7 @@ do
   ((COUNT++))
 done
 
-mkfs.ext4 ${CRYPTED_DISKS}
-mount ${CRYPTED_DISKS} /mnt/
-mkdir /mnt/tmp
+_func_setup_mkfs
 
 chmod 1777 /mnt/tmp
 
@@ -60,6 +63,8 @@ done
 mkdir -p /mnt/var/tmp
 chmod 1777 /mnt/var/tmp
 debootstrap ${DEBIAN_RELEASE} /mnt
+
+_func_setup_debootstrap_post
 
 echo ${HOSTNAME} > /mnt/etc/hostname
 
@@ -98,9 +103,11 @@ mount --rbind /dev  /mnt/dev
 mount --rbind /proc /mnt/proc
 mount --rbind /sys  /mnt/sys
 
-cp ext4_chroot.sh /mnt/
-chmod +x /mnt/ext4_chroot.sh
-chroot /mnt ./ext4_chroot.sh
+cp chroot.sh /mnt/
+chmod +x /mnt/chroot.sh
+chroot /mnt ./chroot.sh
 
 echo "Debug before umount ?"
 bash
+
+_func_setup_umount

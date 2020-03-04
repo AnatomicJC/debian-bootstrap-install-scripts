@@ -1,0 +1,84 @@
+DISKS=( 
+  /dev/disk/by-id/ata-VBOX_HARDDISK_VB1587128e-72f375b7
+  /dev/disk/by-id/ata-VBOX_HARDDISK_VBaacf6245-82bc0762
+  )
+DEBIAN_RELEASE=buster
+HOSTNAME=server
+DOMAIN=local
+FQDN=${HOSTNAME}.${DOMAIN}
+PUBLIC_IP=127.0.1.1
+# IFACE_NAME will be dhcp, adapt script for your needs
+IFACE_NAME=enp0s3
+ZFS_SYNC=disabled
+ZFS_DEDUP=off
+ZFS_RAID=mirror
+ZFS_CRYPTED_DISKS="/dev/mapper/crypt_disk_0 /dev/mapper/crypt_disk_1"
+
+_func_setup_install_packages () {
+  apt install --yes debootstrap gdisk cryptsetup vim dpkg-dev linux-headers-$(uname -r)
+
+  # After zfs-dkms install, an installation error
+  # can occur, due to postinst scripts :-(
+  apt install --yes zfs-dkms
+  # Installation can fail because zfs module is not loaded yet
+  # So load it
+  modprobe zfs
+  # Then be sure packages are correctly installed
+  apt-get -f install
+
+  apt install --yes mdadm
+}
+
+_func_setup_mkfs () {
+  zpool create -o ashift=12 \
+        -O sync=${ZFS_SYNC} -O dedup=${ZFS_DEDUP} \
+        -O atime=off -O canmount=off -O compression=lz4 -O normalization=formD \
+        -O xattr=sa -O mountpoint=/ -R /mnt \
+        rpool ${ZFS_RAID} ${ZFS_CRYPTED_DISKS}
+  
+  zfs create -o canmount=off -o mountpoint=none rpool/ROOT
+  zfs create -o canmount=noauto -o mountpoint=/ rpool/ROOT/debian
+  zfs mount rpool/ROOT/debian
+  
+  zfs create                 -o setuid=off              rpool/home
+  zfs create -o mountpoint=/root                        rpool/home/root
+  zfs create -o canmount=off -o setuid=off  -o exec=off rpool/var
+  zfs create -o com.sun:auto-snapshot=false             rpool/var/cache
+  zfs create                                            rpool/var/log
+  zfs create                                            rpool/var/spool
+  zfs create -o com.sun:auto-snapshot=false -o exec=on  rpool/var/tmp
+  
+  zfs create -o mountpoint=/var/lib/docker              rpool/var/docker
+  
+  zfs create -o com.sun:auto-snapshot=false \
+               -o setuid=off                              rpool/tmp
+}
+
+_func_setup_debootstrap_post () {
+  zfs set devices=off rpool
+}
+
+_func_setup_umount () {
+  mount | grep -v zfs | tac | awk '/\/mnt/ {print $3}' | xargs -i{} umount -lf {}
+  zpool export rpool
+}
+
+_func_chroot_install_packages () {
+  apt install --yes locales tzdata ssh
+  apt install --yes dpkg-dev linux-headers-$(uname -r) linux-image-amd64 cryptsetup
+  apt install --yes zfs-dkms zfs-initramfs
+}
+
+_func_chroot_post_grub_install () {
+  zfs set mountpoint=legacy rpool/var/log
+  zfs set mountpoint=legacy rpool/var/tmp
+  cat >> /etc/fstab << EOF
+  rpool/var/log /var/log zfs noatime,nodev,noexec,nosuid 0 0
+  rpool/var/tmp /var/tmp zfs noatime,nodev,nosuid 0 0
+  EOF
+  
+  zfs set mountpoint=legacy rpool/tmp
+  cat >> /etc/fstab << EOF
+  rpool/tmp /tmp zfs noatime,nodev,nosuid 0 0
+  EOF
+}

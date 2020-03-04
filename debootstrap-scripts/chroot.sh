@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. ext4.vars
+. ext4.class
 
 ln -s /proc/self/mounts /etc/mtab
 apt update
@@ -12,7 +12,7 @@ echo "Create kendo user"
 useradd kendo
 passwd kendo
 
-apt install --yes locales tzdata ssh linux-image-amd64 cryptsetup
+_func_chroot_install_packages
 
 COUNT=0
 for DISK in "${DISKS[@]}"
@@ -61,13 +61,7 @@ then
       --bootloader-id=debian --recheck --no-floppy
 fi
 
-ROOT_UUID=$(ls -alh /dev/disk/by-uuid/ | grep dm-0 | awk '{print $9}')
-
-tune2fs -o journal_data_writeback /dev/disk/by-uuid/${ROOT_UUID}
-
-cat >> /etc/fstab << EOF
-UUID=${ROOT_UUID} /               ext4    noatime,data=writeback,barrier=0,nobh,errors=remount-ro 0       1
-EOF
+_func_chroot_post_grub_install
 
 update-initramfs -u -k all
 update-grub
