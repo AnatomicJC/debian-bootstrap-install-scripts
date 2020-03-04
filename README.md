@@ -1,10 +1,10 @@
 ## Debian bootstrap Install Scripts
 
-In the beginning, this repository contained scripts to configure only ZFS full-encrypted as root filesystem. ZFS because of deduplication feature.
+In the beginning, this repository contained scripts to configure ZFS full-encrypted as root filesystem, because of deduplication feature.
 
 Then Ext4 and XFS encrypted root filesystems were added.
 
-XFS is now my first choice since I discover [reflinks](https://gist.github.com/AnatomicJC/d51072e09f4f17c05042f639e7b1f4c6)
+XFS is now my first choice since I discovered [reflinks](https://gist.github.com/AnatomicJC/d51072e09f4f17c05042f639e7b1f4c6)
 
 Ressources:
 
