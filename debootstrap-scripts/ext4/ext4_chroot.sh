@@ -9,9 +9,9 @@ apt update
 echo "Set root passwd"
 passwd
 
-echo "Create stduser user"
-useradd stduser
-passwd stduser
+echo "Create kendo user"
+useradd kendo
+passwd kendo
 
 apt install --yes locales tzdata ssh linux-image-amd64 cryptsetup
 
