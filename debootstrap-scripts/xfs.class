@@ -1,0 +1,41 @@
+# Variables
+DISKS=( 
+  /dev/disk/by-id/ata-VBOX_HARDDISK_VB1587128e-72f375b7
+  )
+DEBIAN_RELEASE=buster
+HOSTNAME=server
+DOMAIN=local
+FQDN=${HOSTNAME}.${DOMAIN}
+PUBLIC_IP=127.0.1.1
+# IFACE_NAME will be dhcp, adapt script for your needs
+IFACE_NAME=enp0s3
+CRYPTED_DISKS="/dev/mapper/crypt_disk_0"
+
+_func_setup_install_packages () {
+  apt install --yes debootstrap gdisk cryptsetup vim
+  apt install --yes mdadm
+}
+
+_func_setup_mkfs () {
+  mkfs.xfs -m reflink=1 ${CRYPTED_DISKS}
+  mount ${CRYPTED_DISKS} /mnt/
+  mkdir /mnt/tmp
+}
+
+_func_setup_debootstrap_post () {
+}
+
+_func_setup_umount () {
+}
+
+_func_chroot_install_packages () {
+  apt install --yes locales tzdata ssh linux-image-amd64 cryptsetup
+}
+
+_func_chroot_post_grub_install () {
+  ROOT_UUID=$(ls -alh /dev/disk/by-uuid/ | grep dm-0 | awk '{print $9}')
+  
+  cat >> /etc/fstab << EOF
+  UUID=${ROOT_UUID} /               xfs   defaults 0       0
+  EOF
+}
