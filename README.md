@@ -1,24 +1,29 @@
-## ZFS Install Scripts
+## Debian bootstrap Install Scripts
 
-This repository contains script to configure ZFS full-encrypted as root filesystem.
+In the beginning, this repository contained scripts to configure only ZFS full-encrypted as root filesystem. ZFS because of deduplication feature.
+
+Then Ext4 and XFS encrypted root filesystems were added.
+
+XFS is now my first choice since I discover [reflinks](https://gist.github.com/AnatomicJC/d51072e09f4f17c05042f639e7b1f4c6)
 
 Ressources:
 
 * https://github.com/zfsonlinux/zfs/wiki/Debian-Stretch-Root-on-ZFS
 * https://github.com/zfsonlinux/zfs/wiki/Ubuntu
+* https://gist.github.com/AnatomicJC/d51072e09f4f17c05042f639e7b1f4c6
 
 #### How-to
 
 1. Boot on a custom live-cd
-2. Install Debian and ZFS with debootstrap
+2. Install Debian XFS/ZFS/Ext4 with debootstrap
 
 #### I have no IPMI/IDRAC/other access !! I can't use a live-CD !!
 
-No problem, I already setup ZFS root encrypted system on cheaper dedibox servers, or low-cost VPS. We can use Grub to load a live-CD
+No problem, I already setup root encrypted filesystems on cheaper dedibox servers, or low-cost VPS. We can use Grub to load a live-CD
 
 ### Boot on live-CD from Grub
 
-On an already-installed system you want erase to re-install, you can add a custom entry to `/etc/grub.d/40_custom` file:
+On an already-installed system you want erase for re-install, you can add a custom entry to `/etc/grub.d/40_custom` file:
 
 ```
 #!/bin/sh
@@ -26,7 +31,7 @@ exec tail -n +3 $0
 # This file provides an easy way to add custom menu entries.  Simply type the
 # menu entries you want to add after this comment.  Be careful not to change
 # the 'exec tail' line above.
-menuentry "Debian Live Stretch" {
+menuentry "Debian Live" {
     insmod loopback
     insmod iso9660
     set isopath="/iso"
@@ -41,7 +46,7 @@ menuentry "Debian Live Stretch" {
 **Caveats:** 
 
 * This will work if you create a `/boot/iso` folder.
-* You have to put in `/boot/iso` a debian-custom.iso (the debian live ISO), initrd and vmlinuz files.
+* You have to put in `/boot/iso` a debian-custom.iso (the debian live ISO), `initrd` and `vmlinuz` files.
 * You will find `initrd` and `vmlinuz` files on your live-CD
 * When grub is loaded, `/boot` folder is the root path, that's why **isopath** value is `/iso`
 
@@ -59,31 +64,30 @@ Setup your environment by installing some packages and create chroot of your CD:
 
     bash setup-env.sh
 
-At least, generate you live-cd:
+At least, generate your live-cd:
 
     bash regen_iso.sh
 
-We don't need this, but you can also create a live-USB.
+We don't need this, but you can also create a live-USB (not tested).
 
     bash regen_usb.sh
 
 You will find your custom Debian live-cd on `~/LIVE_BOOT` and **vmlinuz** and **initrd** files on `~/LIVE_BOOT/image`
 
-### Boot on live-cd and reinstall Debian with encrypted root ZFS filesystem
+### Boot on live-cd and reinstall Debian with encrypted root filesystem
 
-Copy zfs-install-scripts folder to your running live-cd instance.
+Copy `debootstrap-scripts` folder to your running live-cd instance.
 
-There is some variables to be defined on top of both scripts:
+There is some variables you have to defined in xfs, zfs or ext4 classes, depending on which filesystem you want to use.
 
 * DISK: full path of your disk in `/dev/disk/by-id`, eg. `/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_drive-scsi0`. 
 * PUBLIC_IP: it is the public IP of the main interface
 * IFACE_NAME: systemd-named of your network card, eg. ens18, enps0f1, etc.
+* .....
 
 Once it is done, you can exec script:
 
-    cd zfs-install-scripts
-    bash zfs_script.sh
+    cd debootstrap-scripts
+    bash script.sh [xfs|zfs|ext4]
 
-**Caveats:**
-
-* Only one disk is supported for now. For RAID configurations, you will have to customize the script. Read the ZFS wiki pages
+Please enjoy....
