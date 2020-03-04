@@ -1,7 +1,6 @@
 #!/bin/bash
-DISKS=( 
-  /dev/disk/by-id/ata-VBOX_HARDDISK_VB1587128e-72f375b7
-  )
+
+. ext4.vars
 
 ln -s /proc/self/mounts /etc/mtab
 apt update

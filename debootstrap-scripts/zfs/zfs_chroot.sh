@@ -1,8 +1,6 @@
 #!/bin/bash
-DISKS=( 
-  /dev/disk/by-id/ata-VBOX_HARDDISK_VB1587128e-72f375b7
-  /dev/disk/by-id/ata-VBOX_HARDDISK_VBaacf6245-82bc0762
-  )
+
+. zfs.vars
 
 ln -s /proc/self/mounts /etc/mtab
 apt update

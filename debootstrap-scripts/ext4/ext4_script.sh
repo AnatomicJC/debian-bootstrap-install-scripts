@@ -1,18 +1,7 @@
 #!/bin/bash
-# Variables
-DISKS=( 
-  /dev/disk/by-id/ata-VBOX_HARDDISK_VB1587128e-72f375b7
-  )
-DEBIAN_RELEASE=buster
-HOSTNAME=server
-DOMAIN=local
-FQDN=${HOSTNAME}.${DOMAIN}
-PUBLIC_IP=127.0.1.1
-# IFACE_NAME will be dhcp, adapt script for your needs
-IFACE_NAME=enp0s3
-CRYPTED_DISKS="/dev/mapper/crypt_disk_0"
 
-# Script
+. ext4.vars
+
 echo "deb http://ftp.debian.org/debian ${DEBIAN_RELEASE} main contrib" > /etc/apt/sources.list
 apt update
 apt install --yes debootstrap gdisk cryptsetup vim
