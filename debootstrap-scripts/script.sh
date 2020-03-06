@@ -104,6 +104,7 @@ mount --rbind /proc /mnt/proc
 mount --rbind /sys  /mnt/sys
 
 cp chroot.sh /mnt/
+cp ${FS}.class /mnt/
 chmod +x /mnt/chroot.sh
 chroot /mnt ./chroot.sh
 
