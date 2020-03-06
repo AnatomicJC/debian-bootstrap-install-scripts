@@ -23,9 +23,11 @@ _func_setup_mkfs () {
 }
 
 _func_setup_debootstrap_post () {
+  return
 }
 
 _func_setup_umount () {
+  return
 }
 
 _func_chroot_install_packages () {
@@ -37,5 +39,5 @@ _func_chroot_post_grub_install () {
   
   cat >> /etc/fstab << EOF
   UUID=${ROOT_UUID} /               xfs   defaults 0       0
-  EOF
+EOF
 }

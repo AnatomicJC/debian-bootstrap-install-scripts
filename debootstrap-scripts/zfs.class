@@ -80,5 +80,5 @@ _func_chroot_post_grub_install () {
   zfs set mountpoint=legacy rpool/tmp
   cat >> /etc/fstab << EOF
   rpool/tmp /tmp zfs noatime,nodev,nosuid 0 0
-  EOF
+EOF
 }

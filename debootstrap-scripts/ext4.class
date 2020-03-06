@@ -1,6 +1,6 @@
 # Variables
 DISKS=( 
-  /dev/disk/by-id/ata-VBOX_HARDDISK_VB1587128e-72f375b7
+  /dev/disk/by-id/ata-QEMU_HARDDISK_QM00003
   )
 DEBIAN_RELEASE=buster
 HOSTNAME=server
@@ -23,9 +23,11 @@ _func_setup_mkfs () {
 }
 
 _func_setup_debootstrap_post () {
+  return
 }
 
 _func_setup_umount () {
+  return
 }
 
 _func_chroot_install_packages () {
@@ -39,5 +41,5 @@ _func_chroot_post_grub_install () {
   
   cat >> /etc/fstab << EOF
   UUID=${ROOT_UUID} /               ext4    noatime,data=writeback,barrier=0,nobh,errors=remount-ro 0       1
-  EOF
+EOF
 }
