@@ -36,7 +36,7 @@ COUNT=0
 for DISK in "${DISKS[@]}"
 do
   echo "cryptsetup luksFormat ${DISK}-part1"
-  cryptsetup luksFormat ${DISK}-part1
+  cryptsetup luksFormat --pbkdf-memory 256 ${DISK}-part1
   echo "cryptsetup luksOpen ${DISK}-part1 crypt_disk_${COUNT}"
   cryptsetup luksOpen ${DISK}-part1 crypt_disk_${COUNT}
   ((COUNT++))
