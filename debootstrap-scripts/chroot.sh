@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. ext4.class
+. *.class
 
 ln -s /proc/self/mounts /etc/mtab
 apt update
