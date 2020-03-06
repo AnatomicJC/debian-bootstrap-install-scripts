@@ -38,7 +38,7 @@ echo "Set root password"
 passwd root
 mkdir /root/.ssh
 cat >> /root/.ssh/authorized_keys << EOF
-ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILKQ/T8HQ2xtIBFc6Q8v/PO7XPZc3T/w7RkATeLqD63R jc@bane
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIO3IvjWAehtwskoS2Ofy7zKuhOaFH7yzShgV9zqwiH2f
 EOF
 
 rm -rf /var/cache
