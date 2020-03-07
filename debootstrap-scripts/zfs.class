@@ -15,8 +15,7 @@ ZFS_RAID=mirror
 ZFS_CRYPTED_DISKS="/dev/mapper/crypt_disk_0 /dev/mapper/crypt_disk_1"
 
 _func_setup_install_packages () {
-  apt install --yes debootstrap gdisk cryptsetup vim dpkg-dev linux-headers-$(uname -r)
-
+  apt install --no-install-recommends --yes debootstrap gdisk cryptsetup vim dpkg-dev linux-headers-$(uname -r)
   # After zfs-dkms install, an installation error
   # can occur, due to postinst scripts :-(
   apt install --yes zfs-dkms
@@ -26,7 +25,7 @@ _func_setup_install_packages () {
   # Then be sure packages are correctly installed
   apt-get -f install
 
-  apt install --yes mdadm
+  apt install --no-install-recommends --yes mdadm
 }
 
 _func_setup_mkfs () {

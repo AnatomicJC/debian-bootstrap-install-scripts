@@ -8,12 +8,12 @@ DOMAIN=local
 FQDN=${HOSTNAME}.${DOMAIN}
 PUBLIC_IP=127.0.1.1
 # IFACE_NAME will be dhcp, adapt script for your needs
-IFACE_NAME=enp0s3
+IFACE_NAME=enp1s0
 CRYPTED_DISKS="/dev/mapper/crypt_disk_0"
 
 _func_setup_install_packages () {
-  apt install --yes debootstrap gdisk cryptsetup vim
-  apt install --yes mdadm
+  apt install --no-install-recommends --yes debootstrap gdisk cryptsetup vim
+  apt install --no-install-recommends --yes mdadm
 }
 
 _func_setup_mkfs () {
